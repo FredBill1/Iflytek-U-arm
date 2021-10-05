@@ -1,0 +1,8 @@
+string mode
+---
+bool success
+string message
+float32 x_s
+float32 y_r
+float32 z_h
+

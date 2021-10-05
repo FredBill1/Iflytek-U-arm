@@ -1,0 +1,4 @@
+---
+bool success
+string sn_mac
+string message

@@ -1,0 +1,6 @@
+string text
+string appID
+string speakerName
+---
+string result
+string fail_reason

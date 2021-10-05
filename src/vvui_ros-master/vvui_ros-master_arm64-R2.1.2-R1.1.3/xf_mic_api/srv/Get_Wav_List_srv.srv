@@ -1,0 +1,6 @@
+int8 get_list
+---
+string result
+string fail_reason
+int8 number
+string[] wav_list

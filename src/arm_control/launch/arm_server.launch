@@ -1,0 +1,4 @@
+<launch>
+    <node ns = "arm"  pkg="arm_control" type="arm_server.py" name ="arm_server" output="screen"/>
+        <rosparam command="load" file="$(find arm_control)/launch/default.yaml" />
+</launch>

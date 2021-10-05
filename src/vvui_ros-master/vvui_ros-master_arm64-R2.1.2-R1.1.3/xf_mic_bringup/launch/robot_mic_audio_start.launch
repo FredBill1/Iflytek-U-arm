@@ -1,0 +1,11 @@
+<launch>
+  <!-- wav/audio -->
+  <include file="$(find xf_mic_api)/launch/xf_audio_start.launch">
+  </include>
+  <!-- online_tts-->
+  <include file="$(find xf_mic_tts_online)/launch/xf_mic_tts_online.launch">
+  </include>
+  <!-- offline_tts-->
+  <!--include file="$(find xf_mic_tts_offline)/launch/robot_audio_tts.launch">
+  </include-->
+</launch>

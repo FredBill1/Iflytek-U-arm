@@ -1,0 +1,4 @@
+int8 stop_play
+---
+string result
+string fail_reason

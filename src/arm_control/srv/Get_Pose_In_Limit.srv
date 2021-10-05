@@ -1,0 +1,8 @@
+float32 x_s
+float32 y_r
+float32 z_h
+bool is_xyz
+---
+bool success
+bool in_range
+string message

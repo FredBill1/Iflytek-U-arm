@@ -1,0 +1,9 @@
+<!--音频播放相关-->
+<launch>
+  <!--设置为功能包的路径-->
+  <arg name="package_path" default = "$(find xf_mic_api)" />  <!--  实际文件目录下是在package_path/audio文件夹下，所以指定目录后需要再建立个audio文件夹 -->
+  <node pkg="xf_mic_api" type="xf_audio_play_node" name="xf_audio_play_node" output="screen">
+    <param name="source_path" type="string" value="$(arg package_path)"/>
+  </node>
+</launch>
+

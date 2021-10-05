@@ -1,0 +1,7 @@
+<launch>
+  <include file="$(find arm_control)/launch/arm_server.launch" > </include>
+  <include file="$(find tcp_server)/launch/camera_start.launch" > </include>
+  <include file="$(find xf_mic_bringup)/launch/robot_mic_audio_start.launch" > </include>
+  <include file="$(find tcp_server)/launch/web_video_server.launch" > </include>
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" > </include>
+</launch>

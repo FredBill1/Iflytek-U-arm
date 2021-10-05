@@ -1,0 +1,13 @@
+string direction
+float32 x
+float32 y
+float32 z
+float32 s
+float32 r
+float32 h
+bool is_relative
+float32 vel
+string move_mode
+---
+bool success
+string message

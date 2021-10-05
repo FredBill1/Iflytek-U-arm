@@ -1,0 +1,9 @@
+string id_name
+float32 angle0
+float32 angle1
+float32 angle2
+float32 angle3
+float32 vel
+---
+bool success
+string message

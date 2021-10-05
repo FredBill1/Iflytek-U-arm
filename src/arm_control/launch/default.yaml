@@ -1,0 +1,11 @@
+default_end_type: pump
+s_none: 33.14
+h_none: 13.98
+s_pump: 45.39
+h_pump: 54.4
+s_holder: 58.96
+h_holder: 32.38
+s_gripper_h: 95.43
+h_gripper_h: 31.3
+s_gripper_v: 45.39
+h_gripper_v: 94.4

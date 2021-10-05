@@ -1,0 +1,3 @@
+<launch>
+    <node ns = "arm"  pkg="tcp_server" type="cam_pub_server.py" name ="image_pubulisher" output="screen"/>
+</launch>

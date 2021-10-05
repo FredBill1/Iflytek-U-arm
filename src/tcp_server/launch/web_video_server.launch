@@ -1,0 +1,14 @@
+<launch>
+    <!-- <include file="$(find icar)/launch/camera_only.launch" > </include> -->
+  <!-- <include file="$(find icar)/launch/screen_pub.launch" > </include> -->
+  <node pkg="web_video_server" type="web_video_server" name="web_video_server_1" output="screen">
+    <param name="port" type="int" value="8080" />    
+    <param name="address" type="string" value="0.0.0.0"/>
+    <param name="server_threads" type="int" value="1" />
+    <param name="ros_threads" type="string" value="2" />
+
+    <!-- The encoding method for the stream (mjpeg, vp8, ros_compressed, png, h264).  -->
+    <!-- 调用网址协议举例：　http://0.0.0.0:8080/stream?topic=/cam&width=540&height=360&quality=50 -->
+  </node>
+</launch>
+    

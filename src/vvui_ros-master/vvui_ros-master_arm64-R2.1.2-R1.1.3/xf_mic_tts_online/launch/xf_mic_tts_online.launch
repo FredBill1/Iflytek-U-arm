@@ -1,0 +1,15 @@
+<!--在线语音合成-->
+<launch>
+
+  <!--设置为功能包的路径-->
+  <arg name="package_path" default = "$(find xf_mic_tts_online)" />
+
+  <node pkg="xf_mic_tts_online" type="xf_mic_tts_online_node" name="xf_mic_tts_online_node" output="screen">
+    <param name="app_id" type="String" value="5d1c5791" />
+    <param name="source_path" type="string" value="$(arg package_path)"/>
+    <!--speaker name= xiaowanzi,xiaoxin,vinn,xiaofeng or xiaoqi etc-->
+    <param name="speaker_name" type="String" value="xiaoqi" />
+    <param name="voice_speed" type="int" value="50" />
+    <param name="tts_service" value="play_txt_wav" />
+  </node>
+</launch>
