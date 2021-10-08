@@ -21,6 +21,8 @@ def main():
         srv_move_xyz(direction="xyz", x=x, y=y, z=z, vel=200, move_mode="MOVJ")
 
     move_xyz(200, 0, 0)
+    move_xyz(200, 50, 100)
+    move_xyz(200, 0, 0)
 
 
 if __name__ == "__main__":
