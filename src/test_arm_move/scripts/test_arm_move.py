@@ -17,7 +17,10 @@ def main():
     srv_move_xyz = rospy.ServiceProxy("/arm/move_to_target_xyz", Move_Target_3d)
     srv_control_manipulator = rospy.ServiceProxy("/arm/control_manipulator", Control_Manipulator)
 
-    srv_move_xyz({"direction": "xyz", "x": 200, "y": 0, "z": 0, "vel": 200, "move_mode": "MOVJ"})
+    def move_xyz(x: float, y: float, z: float):
+        srv_move_xyz(direction="xyz", x=x, y=y, z=z, vel=200, move_mode="MOVJ")
+
+    move_xyz(200, 0, 0)
 
 
 if __name__ == "__main__":
