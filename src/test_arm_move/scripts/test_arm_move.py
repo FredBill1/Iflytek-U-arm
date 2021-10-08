@@ -3,7 +3,7 @@
 import rospy
 from random import randint
 from time import sleep
-from .ArmControl import *
+from ArmControl import *
 
 
 def main():

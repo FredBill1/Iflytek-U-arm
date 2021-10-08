@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rospy
 from arm_control.srv import *
 from typing import Tuple
