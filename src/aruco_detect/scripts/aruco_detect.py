@@ -7,27 +7,32 @@ import cv2
 
 class ArUcoDetector:
     def __init__(self):
+        self.arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_250)
+        self.arucoParams = cv2.aruco.DetectorParameters_create()
+
         self.graySub = rospy.Subscriber("usb_cam/image_rect", Image, self.callback)
         self.cvbridge = CvBridge()
+        print("init ArUcoDetector done.")
 
     def callback(self, src: Image):
         try:
-            cv_image = self.cvbridge.imgmsg_to_cv2(src, "passthrough")
+            gray = self.cvbridge.imgmsg_to_cv2(src, "passthrough")
         except CvBridgeError as e:
             print(e)
             return
 
-        print(cv_image.shape)
+        corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.arucoDict, parameters=self.arucoParams)
+        if ids is not None:
+            cv2.aruco.drawDetectedMarkers(gray, corners)
+        cv2.imshow(gray)
+        cv2.waitKey(1)
 
 
 def main():
     rospy.init_node("aruco_detect", anonymous=True)
 
     arucoDetector = ArUcoDetector()
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        print("Shutting down")
+    rospy.spin()
     # cv2.destroyAllWindows()
 
 
