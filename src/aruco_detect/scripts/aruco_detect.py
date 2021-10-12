@@ -7,7 +7,7 @@ import cv2
 
 class ArUcoDetector:
     def __init__(self):
-        self.arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_250)
+        self.arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
         self.arucoParams = cv2.aruco.DetectorParameters_create()
 
         self.graySub = rospy.Subscriber("usb_cam/image_rect", Image, self.callback)
@@ -21,10 +21,12 @@ class ArUcoDetector:
             print(e)
             return
 
+        gray = cv2.flip(gray, 1)  # 机械臂上的摄像头上下是反的
         corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.arucoDict, parameters=self.arucoParams)
+        print(corners)
         if ids is not None:
-            cv2.aruco.drawDetectedMarkers(gray, corners)
-        cv2.imshow(gray)
+            cv2.aruco.drawDetectedMarkers(gray, corners, ids)
+        cv2.imshow("aruco_result", gray)
         cv2.waitKey(1)
 
 
