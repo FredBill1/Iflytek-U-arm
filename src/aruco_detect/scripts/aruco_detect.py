@@ -23,9 +23,13 @@ class ArUcoDetector:
 
         gray = cv2.flip(gray, 1)  # 机械臂上的摄像头上下是反的
         corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.arucoDict, parameters=self.arucoParams)
-        print(corners)
         if ids is not None:
-            cv2.aruco.drawDetectedMarkers(gray, corners, ids)
+            x, y = (corners[0][0][0] + corners[0][0][2]) / 2
+            cv2.circle(gray, (x, y), 5, 255)
+            print(x, y)
+            # x, y = p1 + p2 / 2
+            # print(x, y)
+            cv2.aruco.drawDetectedMarkers(gray, corners)
         cv2.imshow("aruco_result", gray)
         cv2.waitKey(1)
 
