@@ -7,7 +7,6 @@ import numpy as np
 from typing import List
 from ArmControl import ArmControl
 from math import atan2
-from time import sleep
 
 
 DX = 15
