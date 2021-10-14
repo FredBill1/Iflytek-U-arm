@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rospy
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import Twist, Vector3
+from cv_msgs.msg import RTVec
 import cv2
 import numpy as np
 from math import atan2, sqrt, degrees
@@ -34,7 +34,7 @@ class ArUcoDetector:
         self.gray_sub = rospy.Subscriber("usb_cam/image_rect", Image, self.callback)
         self.cvbridge = CvBridge()
 
-        self.twist_pub = rospy.Publisher("/aruco_twist", Twist, queue_size=1)
+        self.twist_pub = rospy.Publisher("/aruco_vec", RTVec, queue_size=1)
         rospy.loginfo("init ArUcoDetector done.\n")
 
     def callback(self, src: Image) -> None:
@@ -53,8 +53,7 @@ class ArUcoDetector:
             roll, pitch, yaw = rotationMatrixToEulerAngles(rvec)
             rospy.loginfo("x:%10.5f y:%10.5f z:%10.5f" % (x, y, z))
             rospy.loginfo("r:%10.5f p:%10.5f y:%10.5f\n" % (roll, pitch, yaw))
-            res = Twist(Vector3(x, y, z), Vector3(roll, pitch, yaw))
-            self.twist_pub.publish(res)
+            self.twist_pub.publish(RTVec(rvec, tvec))
 
             cv2.aruco.drawDetectedMarkers(gray, corners)
             cv2.aruco.drawAxis(gray, self.cameraMatrix, self.distCoeffs, rvec, tvec, 0.2)  # Draw Axis
