@@ -7,12 +7,11 @@ import numpy as np
 from typing import List
 from ArmControl import ArmControl
 from math import atan2
-from time import sleep
 
 
-DX = 10
-DY = 10
-DZ = 10
+DS = 10
+DR = 10
+DH = 10
 
 
 class Calibrator:
@@ -28,7 +27,7 @@ class Calibrator:
 
     def init(self) -> None:
         self.arm.init()
-        self.X0, self.Y0, self.Z0 = self.arm.get_xyz()
+        self.S0, self.R0, self.H0 = self.arm.get_srh()
 
     def getAruco(self):
         aruco: RTVec = rospy.wait_for_message("/aruco_vec", RTVec, 1)
@@ -49,18 +48,19 @@ class Calibrator:
         print(self.R_cam2gripper, self.t_cam2gripper)
 
     def calibrate(self):
+        t = 0
         for i in range(-2, 3):
             for j in range(-2, 3):
                 for k in range(-2, 3):
-                    x = self.X0 + i * DX
-                    y = self.Y0 + j * DY
-                    z = self.Z0 + k * DZ
-                    if self.arm.check_xyz(x, y, z):
-                        try:
-                            self.getAruco()
-                            self.getArm()
-                        except:
-                            pass
+                    s = self.S0 + i * DS
+                    r = self.R0 + j * DR
+                    h = self.H0 + k * DH
+                    if self.arm.check_xyz(s, r, h):
+                        t += 1
+                        rospy.loginfo("%d:" % t)
+                        self.arm.move_xyz(s, r, h)
+                        self.getAruco()
+                        self.getArm()
         self.calc()
 
 
