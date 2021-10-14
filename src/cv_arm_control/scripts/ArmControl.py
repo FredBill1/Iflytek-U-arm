@@ -46,6 +46,10 @@ class ArmControl:
         res = self.srv_get_pose_in_limit(x, y, z, True)
         return res.in_range
 
+    def check_srh(self, s: float, r: float, h: float) -> bool:
+        res = self.srv_get_pose_in_limit(s, r, h, False)
+        return res.in_range
+
     def get_xyz(self) -> Tuple[float]:
         res = self.srv_get_current_xyz("xyz")
         return res.x_s, res.y_r, res.z_h
