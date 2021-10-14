@@ -44,7 +44,7 @@ class Calibrator:
         r = atan2(y, x)
         rospy.loginfo("x:%10.5f y:%10.5f z:%10.5f r:%10.5f" % (x, y, z, r))
         self.R_gripper2base.append(np.array([0.0, 0.0, r]).T)
-        self.t_gripper2base.append(np.array([x, y, z]).T / 3)
+        self.t_gripper2base.append(np.array([x, y, z]).T / 1000)
 
     def calc(self):
         self.R_cam2gripper, self.t_cam2gripper = cv2.calibrateHandEye(
@@ -56,7 +56,7 @@ class Calibrator:
     def getData(self):
         for i in range(-2, 3):
             for j in range(-2, 3):
-                for k in range(0, 5):
+                for k in range(-1, 4):
                     x = self.X0 + i * DX
                     y = self.Y0 + j * DY
                     z = self.Z0 + k * DZ

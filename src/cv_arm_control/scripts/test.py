@@ -25,10 +25,11 @@ def main():
     while True:
         input()
         res = rospy.wait_for_message("/aruco_vec", RTVec)
-        rvec, tvec = np.array(res.rvec).T, np.array(res.tvec).T
+        rvec, tvec = np.array([res.rvec]).T, np.array([res.tvec]).T
         tvec += t_cam2gripper
         tvec *= 1000
-        x, y, z = np.array(arm.get_xyz()) + tvec.T
+        x, y, z = (np.array(arm.get_xyz()) + tvec.T)[0]
+        print(x, y, z)
         arm.move_xyz(x, y, z)
         input()
         arm.move_home()
