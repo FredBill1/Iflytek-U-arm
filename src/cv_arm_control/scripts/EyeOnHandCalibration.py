@@ -6,6 +6,7 @@ from cv_msgs.msg import RTVec
 import numpy as np
 from typing import List
 from ArmControl import ArmControl
+from math import atan2
 
 
 class Calibrator:
@@ -23,10 +24,17 @@ class Calibrator:
         self.arm.init()
         self.arm.attach(False)
 
-    def getData(self):
+    def getAruco(self):
         aruco: RTVec = rospy.wait_for_message("/aruco_vec", RTVec)
         self.R_target2cam.append(aruco.rvec)
         self.t_target2cam.append(aruco.tvec)
+
+    def getArm(self):
+        x, y, z = self.arm.get_xyz()
+        r = atan2(y, x)
+        rospy.loginfo("x:%10.5f y:%10.5f z:%10.5f r:%10.5f" % (x, y, z, r))
+        self.R_target2cam.append([0.0, 0.0, r])
+        self.t_target2cam.append([x, y, z])
 
     def calc(self):
         self.R_cam2gripper, self.t_cam2gripper = cv2.calibrateHandEye(
@@ -40,7 +48,7 @@ def main():
     calibrator = Calibrator()
     calibrator.init()
     for i in range(50):
-        calibrator.getData()
+        calibrator.getAruco()
     calibrator.calc()
     rospy.spin()
 
