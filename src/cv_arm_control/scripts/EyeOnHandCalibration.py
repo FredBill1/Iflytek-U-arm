@@ -7,6 +7,12 @@ import numpy as np
 from typing import List
 from ArmControl import ArmControl
 from math import atan2
+from time import sleep
+
+
+DX = 10
+DY = 10
+DZ = 10
 
 
 class Calibrator:
@@ -22,19 +28,19 @@ class Calibrator:
 
     def init(self) -> None:
         self.arm.init()
-        self.arm.attach(False)
+        self.X0, self.Y0, self.Z0 = self.arm.get_xyz()
 
     def getAruco(self):
-        aruco: RTVec = rospy.wait_for_message("/aruco_vec", RTVec)
-        self.R_target2cam.append(aruco.rvec)
-        self.t_target2cam.append(aruco.tvec)
+        aruco: RTVec = rospy.wait_for_message("/aruco_vec", RTVec, 1)
+        self.R_target2cam.append(np.array(aruco.rvec).T)
+        self.t_target2cam.append(np.array(aruco.tvec).T)
 
     def getArm(self):
         x, y, z = self.arm.get_xyz()
         r = atan2(y, x)
         rospy.loginfo("x:%10.5f y:%10.5f z:%10.5f r:%10.5f" % (x, y, z, r))
-        self.R_target2cam.append([0.0, 0.0, r])
-        self.t_target2cam.append([x, y, z])
+        self.R_gripper2base.append(np.array([0.0, 0.0, r]).T)
+        self.t_gripper2base.append(np.array([x, y, z]).T / 3)
 
     def calc(self):
         self.R_cam2gripper, self.t_cam2gripper = cv2.calibrateHandEye(
@@ -42,14 +48,27 @@ class Calibrator:
         )
         print(self.R_cam2gripper, self.t_cam2gripper)
 
+    def calibrate(self):
+        for i in range(-2, 3):
+            for j in range(-2, 3):
+                for k in range(-2, 3):
+                    x = self.X0 + i * DX
+                    y = self.Y0 + j * DY
+                    z = self.Z0 + k * DZ
+                    if self.arm.check_xyz(x, y, z):
+                        try:
+                            self.getAruco()
+                            self.getArm()
+                        except:
+                            pass
+        self.calc()
+
 
 def main():
     rospy.init_node("EyeOnHandCalibration", anonymous=True)
     calibrator = Calibrator()
     calibrator.init()
-    for i in range(50):
-        calibrator.getAruco()
-    calibrator.calc()
+    calibrator.calibrate()
     rospy.spin()
 
 

@@ -22,6 +22,11 @@ class ArmControl:
         self.srv_servo_attach = rospy.ServiceProxy("/arm/set_servo_attach", Set_Servo_Attach)
         rospy.loginfo("ArmControl - 初始化完成")
 
+        self.attach(True)
+        self.move_home()
+
+        rospy.loginfo("ArmControl - 归位")
+
     def move_home(self, vel: float = 200.0, move_mode: str = "MOVJ") -> None:
         self.srv_move_xyz(direction="home", vel=vel, move_mode=move_mode)
 
@@ -35,7 +40,7 @@ class ArmControl:
         self.srv_control_manipulator(use)
 
     def attach(self, attach: bool) -> None:
-        self.srv_servo_attach(attach)
+        self.srv_servo_attach("ALL", attach)
 
     def check_xyz(self, x: float, y: float, z: float) -> bool:
         res = self.srv_get_pose_in_limit(x, y, z, True)

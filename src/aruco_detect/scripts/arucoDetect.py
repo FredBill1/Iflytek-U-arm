@@ -57,7 +57,7 @@ class ArUcoDetector:
             self.twist_pub.publish(RTVec(rvec, tvec))
 
             cv2.aruco.drawDetectedMarkers(gray, corners)
-            cv2.aruco.drawAxis(gray, self.cameraMatrix, self.distCoeffs, rvec, tvec, 0.2)  # Draw Axis
+            cv2.aruco.drawAxis(gray, self.cameraMatrix, self.distCoeffs, rvec, tvec, CARD_LENTH)  # Draw Axis
         cv2.imshow("aruco_result", gray)
         cv2.waitKey(1)
 
