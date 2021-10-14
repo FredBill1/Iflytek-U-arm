@@ -9,9 +9,10 @@ from typing import Tuple
 from cv_bridge import CvBridge, CvBridgeError
 
 PARAM = cv2.aruco.DICT_6X6_250
+CARD_LENTH = 0.1
 
 
-def rotationMatrixToEulerAngles(rvecs: np.ndarray) -> Tuple[float]:
+def rotationVectorToEulerAngles(rvecs: np.ndarray) -> Tuple[float]:
     R = np.zeros((3, 3), dtype=np.float64)
     cv2.Rodrigues(rvecs, R)
     sy = sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
@@ -47,10 +48,10 @@ class ArUcoDetector:
         gray = cv2.flip(gray, 1)  # 机械臂上的摄像头上下是反的
         corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.arucoDict)
         if ids is not None:
-            ret = cv2.aruco.estimatePoseSingleMarkers(corners, 0.1, self.cameraMatrix, self.distCoeffs)
+            ret = cv2.aruco.estimatePoseSingleMarkers(corners, CARD_LENTH, self.cameraMatrix, self.distCoeffs)
             rvec, tvec = ret[0][0, 0, :], ret[1][0, 0, :]
             x, y, z = tvec
-            roll, pitch, yaw = rotationMatrixToEulerAngles(rvec)
+            roll, pitch, yaw = rotationVectorToEulerAngles(rvec)
             rospy.loginfo("x:%10.5f y:%10.5f z:%10.5f" % (x, y, z))
             rospy.loginfo("r:%10.5f p:%10.5f y:%10.5f\n" % (roll, pitch, yaw))
             self.twist_pub.publish(RTVec(rvec, tvec))
