@@ -9,7 +9,7 @@ from typing import Tuple
 from cv_bridge import CvBridge, CvBridgeError
 
 PARAM = cv2.aruco.DICT_6X6_250
-CARD_LENTH = 0.0405
+CARD_LENTH = 0.0445
 
 
 def rotationVectorToEulerAngles(rvecs: np.ndarray) -> Tuple[float]:
