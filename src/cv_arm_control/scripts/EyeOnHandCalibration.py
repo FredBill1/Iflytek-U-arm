@@ -31,9 +31,14 @@ class Calibrator:
         self.X0, self.Y0, self.Z0 = self.arm.get_xyz()
 
     def getAruco(self):
-        aruco: RTVec = rospy.wait_for_message("/aruco_vec", RTVec, 1)
+        try:
+            aruco: RTVec = rospy.wait_for_message("/aruco_vec", RTVec, 1)
+        except rospy.ROSException as e:
+            rospy.loginfo("ArUco notFound.")
+            return False
         self.R_target2cam.append(np.array(aruco.rvec).T)
         self.t_target2cam.append(np.array(aruco.tvec).T)
+        return True
 
     def getArm(self):
         x, y, z = self.arm.get_xyz()
@@ -46,28 +51,34 @@ class Calibrator:
         self.R_cam2gripper, self.t_cam2gripper = cv2.calibrateHandEye(
             self.R_gripper2base, self.t_gripper2base, self.R_target2cam, self.t_target2cam
         )
-        print(self.R_cam2gripper, self.t_cam2gripper)
+        print(self.R_cam2gripper)
+        print(self.t_cam2gripper)
 
-    def calibrate(self):
+    def getData(self):
         for i in range(-2, 3):
             for j in range(-2, 3):
-                for k in range(-2, 3):
+                for k in range(0, 5):
                     x = self.X0 + i * DX
                     y = self.Y0 + j * DY
                     z = self.Z0 + k * DZ
                     if self.arm.check_xyz(x, y, z):
                         self.arm.move_xyz(x, y, z)
-                        rospy.sleep(0.1)
-                        self.getAruco()
+                        s = input()
+                        if s == "q":
+                            return
+                        elif s == "a":
+                            continue
+                        if not self.getAruco():
+                            continue
                         self.getArm()
-        self.calc()
 
 
 def main():
     rospy.init_node("EyeOnHandCalibration", anonymous=True)
     calibrator = Calibrator()
     calibrator.init()
-    calibrator.calibrate()
+    calibrator.getData()
+    calibrator.calc()
     rospy.spin()
 
 
