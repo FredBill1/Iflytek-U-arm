@@ -26,15 +26,18 @@ class ArmControl:
         self.move_home()
 
         rospy.loginfo("ArmControl - 归位")
+        rospy.sleep(1)
 
     def move_home(self, vel: float = 200.0, move_mode: str = "MOVJ") -> None:
         self.srv_move_xyz(direction="home", vel=vel, move_mode=move_mode)
 
-    def move_xyz(self, x: float, y: float, z: float, vel: float = 200.0, move_mode: str = "MOVJ") -> None:
-        self.srv_move_xyz(direction="xyz", x=x, y=y, z=z, vel=vel, move_mode=move_mode)
+    def move_xyz(self, x: float, y: float, z: float, vel: float = 200.0, move_mode: str = "MOVJ") -> bool:
+        ret = self.srv_move_xyz(direction="xyz", x=x, y=y, z=z, vel=vel, move_mode=move_mode)
+        return ret.success
 
-    def move_srh(self, s: float, r: float, h: float, vel: float = 200.0, move_mode: str = "MOVJ") -> None:
-        self.srv_move_xyz(direction="srh", x=s, y=r, z=h, vel=vel, move_mode=move_mode)
+    def move_srh(self, s: float, r: float, h: float, vel: float = 200.0, move_mode: str = "MOVJ") -> bool:
+        ret = self.srv_move_xyz(direction="srh", x=s, y=r, z=h, vel=vel, move_mode=move_mode)
+        return ret.success
 
     def use(self, use: bool) -> None:
         self.srv_control_manipulator(use)
