@@ -9,13 +9,15 @@ from math import sin, cos, atan2
 
 R_cam2gripper = np.array(
     [
-        [0.88001818, -0.08434561, -0.46739044],
-        [-0.08377916, 0.94110364, -0.32757441],
-        [0.46749231, 0.32742901, 0.82112191],
+        [0.22173039, -0.10159043, -0.96980154],
+        [0.13559011, 0.98810829, -0.07250751],
+        [0.965635, -0.11541838, 0.2328683],
     ]
 )
-t_cam2gripper = np.array([[-0.16173787], [0.21854771], [0.0]])
+t_cam2gripper = np.array([[-0.19031578], [0.0074771], [0.0]])
+
 C2G = np.vstack((np.hstack((R_cam2gripper, t_cam2gripper)), [0, 0, 0, 1]))
+print(C2G)
 
 
 def RobotMatrix(px, py, pz):  # arm end
@@ -32,29 +34,32 @@ def RobotMatrix(px, py, pz):  # arm end
     return rm2
 
 
-def main():
-    rospy.init_node("test", anonymous=True)
-
-    arm = ArmControl()
-    arm.init()
-
-    while True:
-        res: RTVec = rospy.wait_for_message("/aruco_vec", RTVec)
-        G2B = RobotMatrix(*arm.get_xyz())
-        obj_C = np.array([list(res.tvec) + [1]]).T
-        obj_G = np.dot(C2G, obj_C)
-        obj_B = np.dot(G2B, obj_G)
-        print(obj_C)
-        print(obj_G)
-        print(obj_B)
-        x, y, z, _ = map(int, np.array(obj_B.T * 1000)[0])
-        print("x:%5d y:%5d z:%5d" % (x, y, z))
-        arm.move_xyz(x, y, z)
-        arm.move_home()
-
-    rospy.spin()
+rospy.init_node("test", anonymous=True)
+arm = ArmControl()
+arm.init()
+obj_C = np.array([0, 0, 0, 0]).T
 
 
-if __name__ == "__main__":
+def callback(res: RTVec):
+    global obj_C
+    obj_C = np.array([list(res.tvec) + [1]]).T
+    G2B = RobotMatrix(*arm.get_xyz())
+    obj_G = np.dot(C2G, obj_C)
+    obj_B = np.dot(G2B, obj_G)
+    x, y, z, _ = np.array(obj_B.T * 1000)[0]
+    print(x, y, z)
 
-    main()
+
+rospy.Subscriber("/aruco_vec", RTVec, callback)
+rospy.spin()
+# G2B = RobotMatrix(*arm.get_xyz())
+# obj_G = np.dot(C2G, obj_C)
+# obj_B = np.dot(G2B, obj_G)
+# print(obj_C)
+# print(obj_G)
+# print(obj_B)
+# x, y, z, _ = np.array(obj_B.T * 1000)[0]
+# print("x:%5.1f y:%5.1f z:%5.1f" % (x, y, z))
+# arm.move_xyz(x, y, z)
+# arm.move_home()
+# rospy.spin()
