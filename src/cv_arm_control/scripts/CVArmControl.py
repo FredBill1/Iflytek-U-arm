@@ -42,13 +42,16 @@ class CVArmControl(ArmControl):
     def move3d(self, x: float, y: float, z: float):
         c = np.array([[x], [y], [z], [1.0]])
         g = np.dot(C2G, c)
-        b = np.dot(G2B(*self.get_xyz()), g)
+        b = np.dot(G2B(*(v / 1000 for v in self.get_xyz())), g)
         x, y, z, _ = np.array(b.T * 1000)[0]
+        rospy.loginfo("move3d x:%10.2f y:%10.2f z:%10.2f" % (x, y, z))
         self.move_xyz(x, y, z)
+        rospy.loginfo("move3d done.")
 
     def move2d(self, x: float, y: float, z: float):
         u = np.array([[x], [y], [1.0]]) * z
         x, y, z = np.dot(self.U2C, u).T[0]
+        rospy.loginfo("move2d x:%10.5f y:%10.5f z:%10.5f" % (x, y, z))
         self.move3d(x, y, z)
 
 

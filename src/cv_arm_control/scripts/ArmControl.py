@@ -4,6 +4,19 @@ import rospy
 from arm_control.srv import *
 from typing import Tuple
 
+ERR_MEG = {
+    "E19": "机械臂未连接",
+    "E20": "超时",
+    "E21": "参数错误",
+    "E22": "位置超限制",
+    "E23": "获取末端状态时超时",
+    "E24": "电源未连接",
+    "E27": "释能下运动",
+    "E28": "圆弧模式下未设置中间点",
+    "E30": "末端执行器类型有误",
+    "E31": "控制机械臂运动时侯给出的运动模式有误",
+}
+
 
 class ArmControl:
     def init(self) -> None:
@@ -30,12 +43,20 @@ class ArmControl:
     def move_home(self, vel: float = 200.0, move_mode: str = "MOVJ") -> None:
         self.srv_move_xyz(direction="home", vel=vel, move_mode=move_mode)
 
+    def log_move_ret(self, ret: Move_Target_3dResponse) -> None:
+        if ret.success:
+            rospy.loginfo("ArmControl - move succeeded")
+        else:
+            rospy.loginfo(f"ArmControl - {ret.message} : {ERR_MEG[ret.message]}")
+
     def move_xyz(self, x: float, y: float, z: float, vel: float = 200.0, move_mode: str = "MOVJ") -> bool:
-        ret = self.srv_move_xyz(direction="xyz", x=x, y=y, z=z, vel=vel, move_mode=move_mode)
+        ret = self.srv_move_xyz(direction="xyz", x=x, y=y, z=int(z), vel=vel, move_mode=move_mode)
+        self.log_move_ret(ret)
         return ret.success
 
     def move_srh(self, s: float, r: float, h: float, vel: float = 200.0, move_mode: str = "MOVJ") -> bool:
         ret = self.srv_move_xyz(direction="srh", x=s, y=r, z=h, vel=vel, move_mode=move_mode)
+        self.log_move_ret(ret)
         return ret.success
 
     def use(self, use: bool) -> None:
