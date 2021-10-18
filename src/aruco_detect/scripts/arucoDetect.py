@@ -27,7 +27,7 @@ class ArUcoDetector:
         self.arucoDict = cv2.aruco.Dictionary_get(PARAM)
 
     def init(self) -> None:
-        rospy.loginfo("Wait for /camera_info...")
+        rospy.loginfo("等待 /camera_info...")
         self.cam_info: CameraInfo = rospy.wait_for_message("usb_cam/camera_info", CameraInfo)
         self.cameraMatrix = np.array(self.cam_info.K).reshape((3, 3))
         self.distCoeffs = np.array(self.cam_info.D)
@@ -36,7 +36,7 @@ class ArUcoDetector:
         self.cvbridge = CvBridge()
 
         self.twist_pub = rospy.Publisher("/aruco_vec", RTVec, queue_size=1)
-        rospy.loginfo("init ArUcoDetector done.\n")
+        rospy.loginfo("ArUcoDetector 初始化完成\n")
 
     def callback(self, src: Image) -> None:
         try:
