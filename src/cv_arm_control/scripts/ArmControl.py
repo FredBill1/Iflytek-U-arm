@@ -41,7 +41,8 @@ class ArmControl:
         rospy.loginfo("ArmControl - 归位")
 
     def move_home(self, vel: float = 200.0, move_mode: str = "MOVJ") -> None:
-        self.srv_move_xyz(direction="home", vel=vel, move_mode=move_mode)
+        # self.srv_move_xyz(direction="home", vel=vel, move_mode=move_mode)
+        self.move_xyz(179, 0, 118, vel, move_mode)
 
     def log_move_ret(self, ret: Move_Target_3dResponse) -> None:
         if ret.success:

@@ -8,41 +8,53 @@ from sensor_msgs.msg import Image
 WINNAME = "ClickOnImg"
 
 
-class ImgBridge:
+class Main:
     def init(self) -> None:
+        self.arm = CVArmControl()
+        self.arm.init()
+
         self.img_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, self.msgCb)
         self.cvbridge = CvBridge()
         cv2.namedWindow(WINNAME)
         cv2.setMouseCallback(WINNAME, self.clickCb)
+        rospy.on_shutdown(self.on_shutdown)
+        rospy.loginfo("Init done. Click on image to pick a position.")
 
     def msgCb(self, src: Image) -> None:
         try:
-            img = self.cvbridge.imgmsg_to_cv2(src, "passthrough")
+            img = self.cvbridge.imgmsg_to_cv2(src, "bgr8")
+            self.img = cv2.flip(img, 1)
         except CvBridgeError as e:
             rospy.logerr(e)
             return
 
-        cv2.imshow(WINNAME, img)
-        cv2.waitKey(1)
+    def spin(self):
+        while not rospy.is_shutdown():
+            cv2.imshow(WINNAME, self.img)
+            if cv2.waitKey(5) & 0xFF == ord("q"):
+                break
+        rospy.signal_shutdown("pressed 'q'")
 
     def clickCb(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
-            print(x, y)
+            rospy.loginfo("\nclick: x:%d y:%d" % (x, y))
+            self.arm.move2d(x, y, 0.16, 10)
+            self.arm.use(True)
+            self.arm.move_home()
+            self.arm.use(False)
+
+    def on_shutdown(self):
+        cv2.destroyAllWindows()
+        rospy.loginfo("quit.")
+        cv2.destroyAllWindows()
+        rospy.loginfo("quit.")
 
 
 def main():
     rospy.init_node("clickTest", anonymous=True)
-    # arm = CVArmControl()
-    # arm.init()
-    # while True:
-    #     x, y = map(int, input("输入坐标: ").split())
-    #     arm.move2d(x, y, 0.15)
-    #     arm.use(True)
-    #     arm.move_home()
-    #     arm.use(False)
-    imgBridge = ImgBridge()
-    imgBridge.init()
-    rospy.spin()
+    m = Main()
+    m.init()
+    m.spin()
 
 
 if __name__ == "__main__":
