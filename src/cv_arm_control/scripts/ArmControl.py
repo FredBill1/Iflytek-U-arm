@@ -26,7 +26,6 @@ class ArmControl:
         self.move_home()
 
         rospy.loginfo("ArmControl - 归位")
-        rospy.sleep(1)
 
     def move_home(self, vel: float = 200.0, move_mode: str = "MOVJ") -> None:
         self.srv_move_xyz(direction="home", vel=vel, move_mode=move_mode)
