@@ -40,23 +40,28 @@ class ArmControl:
 
         rospy.loginfo("ArmControl - 归位")
 
-    def move_home(self, vel: float = 200.0, move_mode: str = "MOVJ") -> None:
-        # self.srv_move_xyz(direction="home", vel=vel, move_mode=move_mode)
-        self.move_xyz(179, 0, 118, vel, move_mode)
-
     def log_move_ret(self, ret: Move_Target_3dResponse) -> None:
         if ret.success:
             rospy.loginfo("ArmControl - move succeeded")
         else:
-            rospy.loginfo(f"ArmControl - {ret.message} : {ERR_MEG[ret.message]}")
+            rospy.logerr(f"ArmControl - {ret.message} : {ERR_MEG[ret.message]}")
 
-    def move_xyz(self, x: float, y: float, z: float, vel: float = 200.0, move_mode: str = "MOVJ") -> bool:
-        ret = self.srv_move_xyz(direction="xyz", x=x, y=y, z=int(z), vel=vel, move_mode=move_mode)
+    def move_xyz(self, x: float, y: float, z: float, vel: float = 150.0, move_mode: str = "MOVJ") -> bool:
+        ret = self.srv_move_xyz(direction="xyz", x=x, y=y, z=z, vel=vel, move_mode=move_mode)
         self.log_move_ret(ret)
         return ret.success
 
-    def move_srh(self, s: float, r: float, h: float, vel: float = 200.0, move_mode: str = "MOVJ") -> bool:
+    def move_srh(self, s: float, r: float, h: float, vel: float = 150.0, move_mode: str = "MOVJ") -> bool:
         ret = self.srv_move_xyz(direction="srh", x=s, y=r, z=h, vel=vel, move_mode=move_mode)
+        self.log_move_ret(ret)
+        return ret.success
+
+    def move_home(self, vel: float = 150.0, move_mode: str = "MOVJ") -> None:
+        # self.srv_move_xyz(direction="home", vel=vel, move_mode=move_mode)
+        self.move_xyz(179, 0, 118, vel, move_mode)
+
+    def move_xyz_relative(self, x: float, y: float, z: float, vel: float = 150.0, move_mode: str = "MOVJ") -> bool:
+        ret = self.srv_move_xyz(direction="xyz", x=x, y=y, z=z, vel=vel, move_mode=move_mode, is_relative=True)
         self.log_move_ret(ret)
         return ret.success
 
