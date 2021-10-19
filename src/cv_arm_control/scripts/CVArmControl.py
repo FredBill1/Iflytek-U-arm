@@ -5,15 +5,16 @@ from sensor_msgs.msg import CameraInfo
 import numpy as np
 from math import atan2, sin, cos
 from typing import Optional
+from C2G import C2G
 
-C2G = np.array(
-    [
-        [0.0, -1.12, 0.0, 0.065],
-        [-1.17, 0.0, 0.0, 0.018],
-        [0.0, 0.0, -1.0, 0.05],
-        [0.0, 0.0, 0.0, 1.0],
-    ]
-)
+# C2G = np.array(
+#     [
+#         [0.0, -1.12, 0.0, 0.065],
+#         [-1.17, 0.0, 0.0, 0.018],
+#         [0.0, 0.0, -1.0, 0.05],
+#         [0.0, 0.0, 0.0, 1.0],
+#     ]
+# )
 
 
 def G2B(x: float, y: float, z: float):
