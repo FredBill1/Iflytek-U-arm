@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import roslib
+import actionlib
 
 roslib.load_manifest("test_cv_py")
 import sys
@@ -11,42 +12,40 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
+from darknet_ros_msgs.msg import CheckForObjectsAction, CheckForObjectsGoal
+
 
 class image_converter:
     def __init__(self):
-        self.image_pub = rospy.Publisher("image_topic_2", Image, queue_size=10)
-
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("usb_cam/image_raw", Image, self.callback)
+        self.image_pub = rospy.Publisher("usb_cam/darknet_img", Image, queue_size=1)
+        self.client = actionlib.SimpleActionClient("/darknet_ros/check_for_objects", CheckForObjectsAction)
 
-    def callback(self, data):
-
-        try:
-            cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        except CvBridgeError as e:
-            print(e)
-
-        (rows, cols, channels) = cv_image.shape
-        if cols > 60 and rows > 60:
-            cv2.circle(cv_image, (50, 50), 10, 255)
-
-        cv2.imshow("Image window", cv_image)
-        cv2.waitKey(3)
-
-        try:
-            self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))
-        except CvBridgeError as e:
-            print(e)
+    def pub(self):
+        data = rospy.wait_for_message("usb_cam/image_rect_color", Image)
+        img = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        img = cv2.flip(img, 1)
+        # res = self.bridge.cv2_to_imgmsg(img, "rgb8")
+        image = self.bridge.cv2_to_imgmsg(img, "rgb8")
+        goal = CheckForObjectsGoal(image=image)
+        res = self.client.send_goal_and_wait(goal)
+        print(res)
+        res = self.client.get_result()
+        print(res)
+        print(type(res))
+        # self.image_pub.publish(res)
+        # self.image_pub.unregister()
+        # rospy.sleep(10)
+        # image_pub.unregister()
 
 
 def main(args):
+
+    rospy.init_node("test_cv", anonymous=True)
     ic = image_converter()
-    rospy.init_node("image_converter", anonymous=True)
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        print("Shutting down")
-    cv2.destroyAllWindows()
+    input("lol")
+    ic.pub()
+    rospy.signal_shutdown("quit")
 
 
 if __name__ == "__main__":
