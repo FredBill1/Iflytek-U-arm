@@ -1,0 +1,23 @@
+<launch>
+    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" respawn="true" output="screen">
+        <param name="video_device" value="/dev/video0" />
+        <param name="image_width" value="640" />
+        <param name="image_height" value="480" />
+        <param name="pixel_format" value="yuyv" />
+        <param name="camera_frame_id" value="usb_cam" />
+        <param name="io_method" value="mmap"/>
+    </node>
+
+    <node ns="usb_cam" name="image_proc" pkg="image_proc" type="image_proc" respawn="true" output="screen"/>
+
+    <!-- Use YOLOv3 -->
+    <arg name="network_param_file" default="$(find darknet_ros)/config/yolov2.yaml"/>
+    <arg name="image" default="usb_cam/darknet_img" />
+
+
+    <!-- Include main launch file -->
+    <include file="$(find darknet_ros)/launch/darknet_ros.launch">
+        <arg name="network_param_file" value="$(arg network_param_file)"/>
+        <arg name="image" value="$(arg image)" />
+    </include>
+</launch>

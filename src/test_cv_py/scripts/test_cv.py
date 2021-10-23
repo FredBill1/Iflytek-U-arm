@@ -20,6 +20,7 @@ class image_converter:
         self.bridge = CvBridge()
         self.image_pub = rospy.Publisher("usb_cam/darknet_img", Image, queue_size=1)
         self.client = actionlib.SimpleActionClient("/darknet_ros/check_for_objects", CheckForObjectsAction)
+        self.client.wait_for_server()
 
     def pub(self):
         data = rospy.wait_for_message("usb_cam/image_rect_color", Image)
@@ -43,7 +44,7 @@ def main(args):
 
     rospy.init_node("test_cv", anonymous=True)
     ic = image_converter()
-    input("lol")
+    # input("lol")
     ic.pub()
     rospy.signal_shutdown("quit")
 
