@@ -1,6 +1,6 @@
 <launch>
     <!-- YOLO -->
-    <arg name="network_param_file" default="$(find darknet_ros)/config/yolov4.yaml"/>
+    <arg name="network_param_file" default="$(find darknet_ros)/config/yolov2-tiny.yaml"/>
 
 
     <!-- 摄像头 -->
