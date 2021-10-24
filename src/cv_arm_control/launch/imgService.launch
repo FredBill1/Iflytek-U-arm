@@ -1,4 +1,9 @@
 <launch>
+    <!-- YOLO -->
+    <arg name="network_param_file" default="$(find darknet_ros)/config/yolov4.yaml"/>
+
+
+    <!-- 摄像头 -->
     <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" respawn="true" output="screen">
         <param name="video_device" value="/dev/video0" />
         <param name="image_width" value="640" />
@@ -8,16 +13,12 @@
         <param name="io_method" value="mmap"/>
     </node>
 
+    <!-- 畸变矫正 -->
     <node ns="usb_cam" name="image_proc" pkg="image_proc" type="image_proc" respawn="true" output="screen"/>
 
-    <!-- Use YOLOv3 -->
-    <arg name="network_param_file" default="$(find darknet_ros)/config/yolov2.yaml"/>
-    <arg name="image" default="usb_cam/darknet_img" />
-
-
-    <!-- Include main launch file -->
+    <!-- YOLO -->
     <include file="$(find darknet_ros)/launch/darknet_ros.launch">
         <arg name="network_param_file" value="$(arg network_param_file)"/>
-        <arg name="image" value="$(arg image)" />
+        <arg name="image" value="usb_cam/darknet_img" />
     </include>
 </launch>
