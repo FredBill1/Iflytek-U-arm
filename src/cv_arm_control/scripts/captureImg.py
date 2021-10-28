@@ -31,6 +31,8 @@ class Main:
             os.makedirs(d)
         N = len(os.listdir(d))
         for i in range(N, N + COUNT):
+            if input("按回车采集, 输入q退出: ") == "q":
+                break
             img = self.getImg()
             file = os.path.join(d, f"{i:05d}.jpg")
             print(file)
