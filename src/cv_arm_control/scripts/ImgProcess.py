@@ -92,6 +92,7 @@ class ImgProcess:
         self.getAucro()
 
         rospy.loginfo("ImgProcess - 初始化完成")
+        rospy.on_shutdown(self.on_shutdown)
 
     def on_shutdown(self):
         self.newImgNotifier.notify()

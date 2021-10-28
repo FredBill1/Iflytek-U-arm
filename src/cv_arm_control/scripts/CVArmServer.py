@@ -11,6 +11,7 @@ cvArmServer = CVArmServer()
 
 class RequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
+        self.request: socket.socket
         while True:
             msg = self.request.recv(1024)
             if not msg:
@@ -34,13 +35,15 @@ def main():
     PORT = rospy.get_param("~port", 39394)
     server = socketserver.TCPServer((HOST, PORT), RequestHandler)
     rospy.on_shutdown(lambda: rospy.loginfo("正在关闭..."))
-    rospy.on_shutdown(server.shutdown)
+    # rospy.on_shutdown(server.shutdown)
 
     rospy.loginfo("开启服务端，正在等待连接...")
-    server_thread = threading.Thread(target=server.serve_forever)
-    server_thread.start()
+    while not rospy.is_shutdown():
+        server.handle_request()
+    # server_thread = threading.Thread(target=server.serve_forever)
+    # server_thread.start()
     rospy.spin()
-    server_thread.join()
+    # server_thread.join()
     server.server_close()
     rospy.loginfo("关闭")
 
