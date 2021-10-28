@@ -61,7 +61,7 @@ class ArmControl:
         self.move_xyz(179, 0, 118, vel, move_mode)
 
     def move_home2(self, vel: float = 150.0, move_mode: str = "MOVJ") -> None:
-        self.move_xyz(0.001, 280.0, 20, vel, move_mode)
+        self.move_xyz(0.001, 200.0, 40, vel, move_mode)
 
     def move_xyz_relative(self, x: float, y: float, z: float, vel: float = 150.0, move_mode: str = "MOVJ") -> bool:
         ret = self.srv_move_xyz(direction="xyz", x=x, y=y, z=z, vel=vel, move_mode=move_mode, is_relative=True)

@@ -38,9 +38,9 @@ class Main:
     def clickCb(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
             rospy.loginfo("\nclick: x:%d y:%d" % (x, y))
-            self.arm.move2d(x, y, 0.15, 0, 50)
+            self.arm.move2d(x, y, 0.22, 0, 150)
             self.arm.use(False)
-            # rospy.sleep(5)
+            rospy.sleep(0.3)
             # self.arm.move_xyz_relative(0, 0, 30, 50)
             # rospy.sleep(5)
             self.arm.move_home2(200)
