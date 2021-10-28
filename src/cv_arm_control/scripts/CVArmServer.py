@@ -28,6 +28,11 @@ class RequestHandler(socketserver.BaseRequestHandler):
         self.request.close()
 
 
+def spin(server: socketserver.TCPServer):
+    while not rospy.is_shutdown():
+        server.handle_request()
+
+
 def main():
     rospy.init_node("CVArmServer", anonymous=True)
     cvArmServer.init()
@@ -38,12 +43,10 @@ def main():
     rospy.on_shutdown(server.shutdown)
 
     rospy.loginfo("开启服务端，正在等待连接...")
-    while not rospy.is_shutdown():
-        server.handle_request()
-    # server_thread = threading.Thread(target=server.serve_forever)
-    # server_thread.start()
+    server_thread = threading.Thread(target=lambda: spin(server))
+    server_thread.start()
     rospy.spin()
-    # server_thread.join()
+    server_thread.join()
     server.server_close()
     rospy.loginfo("关闭")
 
