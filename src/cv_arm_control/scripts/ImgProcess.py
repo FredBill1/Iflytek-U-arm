@@ -85,6 +85,12 @@ class ImgProcess:
         self.running = True
         self.dispThread = Thread(target=self.displayThread)
         self.dispThread.start()
+
+        rospy.loginfo("ImgProcess - 进行Yolo测试...")
+        self.getYolo()
+        rospy.loginfo("ImgProcess - 进行Aucro测试...")
+        self.getAucro()
+
         rospy.loginfo("ImgProcess - 初始化完成")
 
     def on_shutdown(self):
