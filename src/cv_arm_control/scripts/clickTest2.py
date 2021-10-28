@@ -38,14 +38,14 @@ class Main:
     def clickCb(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
             rospy.loginfo("\nclick: x:%d y:%d" % (x, y))
-            self.arm.move2d(x, y, 0.18, 0, 50)
-            self.arm.use(True)
+            self.arm.move2d(x, y, 0.15, 0, 50)
+            self.arm.use(False)
             # rospy.sleep(5)
             # self.arm.move_xyz_relative(0, 0, 30, 50)
             # rospy.sleep(5)
             self.arm.move_home2(200)
             rospy.sleep(1)
-            self.arm.use(False)
+            self.arm.use(True)
 
     def on_shutdown(self):
         cv2.destroyAllWindows()
@@ -59,6 +59,7 @@ def main():
     m = Main()
     m.init()
     m.arm.move_home2()
+    m.arm.use(True)
     m.spin()
 
 
