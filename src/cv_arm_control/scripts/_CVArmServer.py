@@ -27,7 +27,7 @@ class CVArmServer:
             rospy.loginfo("获取aruco")
             aurco = self.img_process.getAucro()
             print(aurco)
-            client.send("done")
+            client.send("done".encode())
 
 
 __all__ = ["CVArmServer"]
