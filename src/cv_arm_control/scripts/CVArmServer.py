@@ -35,7 +35,7 @@ def main():
     PORT = rospy.get_param("~port", 39394)
     server = socketserver.TCPServer((HOST, PORT), RequestHandler)
     rospy.on_shutdown(lambda: rospy.loginfo("正在关闭..."))
-    # rospy.on_shutdown(server.shutdown)
+    rospy.on_shutdown(server.shutdown)
 
     rospy.loginfo("开启服务端，正在等待连接...")
     while not rospy.is_shutdown():
