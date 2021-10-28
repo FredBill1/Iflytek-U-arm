@@ -28,13 +28,11 @@ class RequestHandler(socketserver.BaseRequestHandler):
 
 
 def main():
-    rospy.init_node("test_socket_server", anonymous=True)
+    rospy.init_node("CVArmServer", anonymous=True)
     cvArmServer.init()
-    HOST = rospy.get_param("~host", "localhost")
+    HOST = rospy.get_param("~host", "192.168.1.76")
     PORT = rospy.get_param("~port", 39394)
-    print(1)
     server = socketserver.TCPServer((HOST, PORT), RequestHandler)
-    print(2)
     rospy.on_shutdown(lambda: rospy.loginfo("正在关闭..."))
     rospy.on_shutdown(server.shutdown)
 
