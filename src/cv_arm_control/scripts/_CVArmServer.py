@@ -54,7 +54,11 @@ class CVArmServer:
         elif msg == "drop":
             rospy.loginfo("获取aruco")
             aurco = self.img_process.getAucro()
-            print(aurco)
+            if aurco is None:
+                rospy.logerr("未检测到aurco")
+                # TODO
+            # x, y = aurco
+            # print(aurco)
             # client.send("done".encode())
             self.cv_arm.use(False)
             rospy.sleep(0.5)
