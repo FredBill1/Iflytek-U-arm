@@ -105,6 +105,7 @@ class ImgProcess:
         while self.running:
             self.dispNotifier.wait()
             disp = np.concatenate((self.img, self.res_img), 1)
+            disp = cv2.resize(disp, (disp.shape[1] // 2, disp.shape[0] // 2))
             cv2.imshow("img", disp)
             cv2.waitKey(1)
 

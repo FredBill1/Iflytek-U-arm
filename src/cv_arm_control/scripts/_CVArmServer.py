@@ -14,7 +14,7 @@ CATAGORY = (
 
 Z1 = 0.18
 Z2 = 0.22
-GRAB_Z = 0.0
+GRAB_Z = 5.0
 GRAB_VEL = 50.0
 
 
