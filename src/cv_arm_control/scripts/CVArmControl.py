@@ -33,7 +33,7 @@ class CVArmControl(ArmControl):
 
         rospy.loginfo("ArmController init done")
 
-    def calc3d(self, x: float, y: float, z: float) -> Tuple[float]:
+    def calc3d(self, x: float, y: float, z: float) -> Tuple[float, float, float]:
         c = np.array([[x], [y], [z], [1.0]])
         g = np.dot(C2G, c)
         b = np.dot(G2B(*(v / 1000 for v in self.get_xyz())), g)
@@ -41,7 +41,7 @@ class CVArmControl(ArmControl):
         rospy.loginfo("calc3d x:%10.2f y:%10.2f z:%10.2f" % (x, y, z))
         return x, y, z
 
-    def calc2d(self, x: float, y: float, z: float) -> Tuple[float]:
+    def calc2d(self, x: float, y: float, z: float) -> Tuple[float, float, float]:
         u = np.array([[x], [y], [1.0]]) * z
         x, y, z = np.dot(self.U2C, u).T[0]
         rospy.loginfo("calc2d x:%10.5f y:%10.5f z:%10.5f" % (x, y, z))
@@ -49,17 +49,19 @@ class CVArmControl(ArmControl):
 
     def move3d(
         self, x: float, y: float, z: float, z_set: Optional[float] = None, vel: float = 150.0, move_mode: str = "MOVJ"
-    ):
+    ) -> bool:
         x, y, z = self.calc3d(x, y, z)
-        self.move_xyz(x, y, z if z_set is None else z_set, vel, move_mode)
+        ret = self.move_xyz(x, y, z if z_set is None else z_set, vel, move_mode)
         rospy.loginfo("move3d done.")
+        return ret
 
     def move2d(
         self, x: float, y: float, z: float, z_set: Optional[float] = None, vel: float = 150.0, move_mode: str = "MOVJ"
-    ):
+    ) -> bool:
         x, y, z = self.calc2d(x, y, z)
-        self.move_xyz(x, y, z if z_set is None else z_set, vel, move_mode)
+        ret = self.move_xyz(x, y, z if z_set is None else z_set, vel, move_mode)
         rospy.loginfo("move2d done.")
+        return ret
 
 
 def main():
