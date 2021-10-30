@@ -16,6 +16,8 @@ Z1 = 0.18
 Z2 = 0.22
 GRAB_Z = 5.0
 GRAB_VEL = 50.0
+DROP_Z = -5.0
+DROP_VEL = 50.0
 
 
 class CVArmServer:
@@ -56,12 +58,20 @@ class CVArmServer:
             aurco = self.img_process.getAucro()
             if aurco is None:
                 rospy.logerr("未检测到aurco")
+                self.cv_arm.use(False)
+                self.cv_arm.move_home()
+                return
                 # TODO
-            # x, y = aurco
+
+            x, y = aurco
             # print(aurco)
-            # client.send("done".encode())
+            res = self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL)
+            if not res:
+                rospy.logerr("移动到aurco坐标失败")
+                # TODO
             self.cv_arm.use(False)
             rospy.sleep(0.5)
+            # client.send("done".encode())
             self.cv_arm.move_home()
 
 
