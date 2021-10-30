@@ -67,8 +67,9 @@ class CVArmServer:
                 client.send("fail".encode())
                 # TODO
             self.cv_arm.use(False)
+            rospy.sleep(0.3)
             client.send("done".encode())
-            rospy.sleep(0.5)
+            rospy.sleep(0.2)
             self.cv_arm.move_home()
 
 
