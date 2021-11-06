@@ -1,0 +1,8 @@
+<launch>
+    <node name="usb_cam" pkg="socket_img" type="socket_img_recv.py" respawn="true" output="screen"/>
+    <node ns="usb_cam" name="image_proc" pkg="image_proc" type="image_proc" respawn="true" output="screen"/>
+    <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+        <remap from="image" to="/usb_cam/image_rect_color"/>
+        <param name="autosize" value="true" />
+    </node>
+</launch>
