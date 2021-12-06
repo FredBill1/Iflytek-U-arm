@@ -96,11 +96,11 @@ class CVArmServer:
                             if is_shutdown_requested():
                                 return
                             cnt += 1
-                            if cnt == 5:
+                            if cnt == 6:
                                 self.cv_arm.move_home2()
                                 cnt = 0
                             else:
-                                self.cv_arm.move_xyz_relative(randint(-20, 20), randint(-20, 20), 0)
+                                self.cv_arm.move_xyz_relative(randint(-30, 30), randint(-30, 30), 0)
                             rospy.logerr("未检测到aurco")
                             aurco = self.img_process.getAucro()
                             # TODO 一段时间都没检测到
