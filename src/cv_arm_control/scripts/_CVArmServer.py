@@ -5,6 +5,7 @@ from ImgProcess import ImgProcess
 import rospy
 from rospy.core import is_shutdown_requested
 from typing import Dict, List, Tuple
+from random import randint
 
 CATAGORY = (
     "fruit",
@@ -93,6 +94,7 @@ class CVArmServer:
                         while aurco is None:
                             if is_shutdown_requested():
                                 return
+                            self.cv_arm.move_xyz_relative(randint(-50, 50), randint(-50, 50), 0)
                             rospy.logerr("未检测到aurco")
                             aurco = self.img_process.getAucro()
                             # TODO 一段时间都没检测到
