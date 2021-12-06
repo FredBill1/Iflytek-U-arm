@@ -3,7 +3,13 @@
 import rospy
 import socket
 
-commands = ("init", "grab:", "drop")
+commands = ("init", "grab", "drop")
+category = {
+    "v": "vegetable",
+    "b": "beverage",
+    "f": "fruit",
+    "m": "meat",
+}
 
 
 def main():
@@ -14,6 +20,10 @@ def main():
         cmd = input(">>")
         if cmd == "q":
             break
+        if cmd.startswith("grab"):
+            t = cmd.split()[-1]
+            if t in category:
+                cmd = "grab " + category[t]
         with socket.socket() as client:
             client.connect((HOST, PORT))
             client.send(cmd.encode())
