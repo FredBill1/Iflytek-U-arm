@@ -133,7 +133,7 @@ class ImgProcess:
         self.newImgNotifier.wait()
         self.res_img = self.img.copy()
         gray = cv2.cvtColor(self.res_img, cv2.COLOR_BGR2GRAY)
-        gray = cv2.equalizeHist(gray)
+        # gray = cv2.equalizeHist(gray)
         corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.arucoDict)
         if ids is not None:
             cv2.aruco.drawDetectedMarkers(self.res_img, corners, ids)
