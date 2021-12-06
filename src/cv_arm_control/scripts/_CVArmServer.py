@@ -25,14 +25,35 @@ class CVArmServer:
         self.cv_arm = CVArmControl()
         self.img_process = ImgProcess()
         self.yolo: Dict[str, List[Tuple[float]]] = {}
+        self.target = ""
 
-    def init(self):
+    def init(self) -> None:
         self.cv_arm.init()
         self.img_process.init()
 
+    def home(self) -> None:
+        self.cv_arm.use(False)
+        self.cv_arm.move_home()
+
+    def ready(self) -> None:
+        self.cv_arm.move_home()
+        self.cv_arm.move_home2()
+
+    def checkTarget(self) -> bool:
+        if self.target not in self.yolo or not self.yolo[self.target]:
+            rospy.logerr(f"未检测到{self.target}，或已经抓完所有这类的卡片")
+            return False
+        return True
+
+    def grab(self) -> None:
+        rospy.loginfo(f"抓取{self.target}")
+        x, y = self.yolo[self.target].pop()
+        self.cv_arm.move_xyz(x, y, GRAB_Z, GRAB_VEL)
+        self.cv_arm.use(True)
+
     def msgParse(self, msg: str, client: socket.socket):
         if msg == "init":
-            self.cv_arm.move_home()
+            self.home()
             rospy.loginfo("获取Yolo")
             for catagory, li in self.img_process.getYolo().items():
                 self.yolo[catagory] = []
@@ -43,34 +64,38 @@ class CVArmServer:
 
         elif msg.startswith("grab"):
             self.target = msg.split()[1]
-            rospy.loginfo(f"抓取{self.target}")
-            if self.target not in self.yolo or not self.yolo[self.target]:
-                rospy.logerr(f"未检测到{self.target}")
-            else:
-                x, y = self.yolo[self.target].pop()
-                self.cv_arm.move_xyz(x, y, GRAB_Z, GRAB_VEL)
-                self.cv_arm.use(True)
-            self.cv_arm.move_home()
-            self.cv_arm.move_home2()
+            if self.checkTarget():
+                self.grab()
+            self.ready()
 
         elif msg == "drop":
-            rospy.loginfo("获取aruco")
-            aurco = self.img_process.getAucro()
-            while aurco is None:
-                rospy.logerr("未检测到aurco")
-                aurco = self.img_process.getAucro()
+            while True:
+                while True:
+                    rospy.loginfo("获取aruco")
+                    aurco = self.img_process.getAucro()
+                    while aurco is None:
+                        rospy.logerr("未检测到aurco")
+                        aurco = self.img_process.getAucro()
+                        # TODO 一段时间都没检测到
 
-            x, y = aurco
-            res = self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL)
-            if not res:
-                rospy.logerr("移动到aurco坐标失败")
-                client.send("fail".encode())
-                # TODO
-            self.cv_arm.use(False)
-            rospy.sleep(0.3)
-            client.send("done".encode())
+                    x, y = aurco
+                    if self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL):
+                        break
+                    rospy.logerr("移动到aurco坐标失败")
+                    client.send("fail".encode())
+                    # TODO 位置超限
+
+                self.cv_arm.use(False)
+                rospy.sleep(0.3)
+                if not self.checkTarget():
+                    client.send("done".encode())
+                    break
+                rospy.sleep(0.2)
+                self.home()
+                self.grab()
+                self.ready()
             rospy.sleep(0.2)
-            self.cv_arm.move_home()
+            self.home()
 
 
 __all__ = ["CVArmServer"]
