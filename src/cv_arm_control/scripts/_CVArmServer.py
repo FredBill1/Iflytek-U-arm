@@ -26,6 +26,7 @@ class CVArmServer:
         self.img_process = ImgProcess()
         self.yolo: Dict[str, List[Tuple[float]]] = {}
         self.target = ""
+        self.aucro: Tuple[float, float] = tuple()
 
     def init(self) -> None:
         self.cv_arm.init()
@@ -53,6 +54,7 @@ class CVArmServer:
 
     def msgParse(self, msg: str, client: socket.socket):
         if msg == "init":
+            self.aucro = tuple()
             self.home()
             rospy.loginfo("获取Yolo")
             for catagory, li in self.img_process.getYolo().items():
@@ -70,20 +72,25 @@ class CVArmServer:
 
         elif msg == "drop":
             while True:
-                while True:
-                    rospy.loginfo("获取aruco")
-                    aurco = self.img_process.getAucro()
-                    while aurco is None:
-                        rospy.logerr("未检测到aurco")
+                if not self.aucro:
+                    while True:
+                        rospy.loginfo("获取aruco")
                         aurco = self.img_process.getAucro()
-                        # TODO 一段时间都没检测到
+                        while aurco is None:
+                            rospy.logerr("未检测到aurco")
+                            aurco = self.img_process.getAucro()
+                            # TODO 一段时间都没检测到
 
-                    x, y = aurco
-                    if self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL):
-                        break
-                    rospy.logerr("移动到aurco坐标失败")
-                    client.send("fail".encode())
-                    # TODO 位置超限
+                        x, y = aurco
+                        if self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL):
+                            self.aucro = (x, y)
+                            break
+                        rospy.logerr("移动到aurco坐标失败")
+                        # TODO 位置超限
+                        # client.send("fail".encode())
+                else:
+                    x, y = self.aucro
+                    self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL)
 
                 self.cv_arm.use(False)
                 rospy.sleep(0.3)
