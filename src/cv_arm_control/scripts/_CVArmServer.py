@@ -3,6 +3,7 @@ import socket
 from CVArmControl import CVArmControl
 from ImgProcess import ImgProcess
 import rospy
+from rospy.core import is_shutdown_requested
 from typing import Dict, List, Tuple
 
 CATAGORY = (
@@ -19,6 +20,8 @@ GRAB_VEL = 50.0
 DROP_Z = -5.0
 DROP_VEL = 150.0
 
+GET_YOLO_EVERY_TIME = True
+
 
 class CVArmServer:
     def __init__(self):
@@ -31,6 +34,7 @@ class CVArmServer:
     def init(self) -> None:
         self.cv_arm.init()
         self.img_process.init()
+        self.prepare()
 
     def home(self) -> None:
         self.cv_arm.use(False)
@@ -52,17 +56,23 @@ class CVArmServer:
         self.cv_arm.move_xyz(x, y, GRAB_Z, GRAB_VEL)
         self.cv_arm.use(True)
 
+    def getYolo(self):
+        rospy.loginfo("获取Yolo")
+        for catagory, li in self.img_process.getYolo().items():
+            self.yolo[catagory] = []
+            for x, y in li:
+                self.yolo[catagory].append(self.cv_arm.calc2d(x, y, Z1)[:2])
+        rospy.loginfo("Yolo获取完成")
+        rospy.loginfo(self.yolo)
+
+    def prepare(self):
+        self.aucro = tuple()
+        self.home()
+        self.getYolo()
+
     def msgParse(self, msg: str, client: socket.socket):
         if msg == "init":
-            self.aucro = tuple()
-            self.home()
-            rospy.loginfo("获取Yolo")
-            for catagory, li in self.img_process.getYolo().items():
-                self.yolo[catagory] = []
-                for x, y in li:
-                    self.yolo[catagory].append(self.cv_arm.calc2d(x, y, Z1)[:2])
-            rospy.loginfo("Yolo获取完成")
-            rospy.loginfo(self.yolo)
+            self.prepare()
 
         elif msg.startswith("grab"):
             self.target = msg.split()[1]
@@ -72,11 +82,17 @@ class CVArmServer:
 
         elif msg == "drop":
             while True:
+                if is_shutdown_requested():
+                    return
                 if not self.aucro:
                     while True:
+                        if is_shutdown_requested():
+                            return
                         rospy.loginfo("获取aruco")
                         aurco = self.img_process.getAucro()
                         while aurco is None:
+                            if is_shutdown_requested():
+                                return
                             rospy.logerr("未检测到aurco")
                             aurco = self.img_process.getAucro()
                             # TODO 一段时间都没检测到
@@ -88,6 +104,7 @@ class CVArmServer:
                         rospy.logerr("移动到aurco坐标失败")
                         # TODO 位置超限
                         # client.send("fail".encode())
+
                 else:
                     x, y = self.aucro
                     self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL)
@@ -99,6 +116,9 @@ class CVArmServer:
                     break
                 rospy.sleep(0.2)
                 self.home()
+                if GET_YOLO_EVERY_TIME:
+                    rospy.sleep(0.2)
+                    self.getYolo()
                 self.grab()
                 self.ready()
             rospy.sleep(0.2)
