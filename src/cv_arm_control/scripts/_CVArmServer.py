@@ -59,6 +59,7 @@ class CVArmServer:
 
     def getYolo(self):
         rospy.loginfo("获取Yolo")
+        self.yolo = {}
         for catagory, li in self.img_process.getYolo().items():
             self.yolo[catagory] = []
             for x, y in li:
@@ -127,6 +128,9 @@ class CVArmServer:
                 if GET_YOLO_EVERY_TIME:
                     rospy.sleep(0.2)
                     self.getYolo()
+                    if not self.checkTarget():
+                        client.send("done".encode())
+                        break
                 self.grab()
                 self.ready()
             rospy.sleep(0.2)
