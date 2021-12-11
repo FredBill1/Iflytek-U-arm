@@ -21,7 +21,7 @@ GRAB_VEL = 50.0
 DROP_Z = -5.0
 DROP_VEL = 150.0
 
-GET_YOLO_EVERY_TIME = True
+GET_YOLO_EVERY_TIME = False
 
 
 class CVArmServer:
