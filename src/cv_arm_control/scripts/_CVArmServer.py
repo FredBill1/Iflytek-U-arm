@@ -16,7 +16,7 @@ CATAGORY = (
 
 Z1 = 0.18
 Z2 = 0.22
-GRAB_Z = 5.0
+GRAB_Z = 10.0
 GRAB_VEL = 50.0
 DROP_Z = -5.0
 DROP_VEL = 150.0
@@ -42,7 +42,7 @@ class CVArmServer:
         self.cv_arm.move_home()
 
     def ready(self) -> None:
-        self.cv_arm.move_home()
+        self.cv_arm.move_home(80)
         self.cv_arm.move_home2()
 
     def checkTarget(self) -> bool:
