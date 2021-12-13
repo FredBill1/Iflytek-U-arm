@@ -16,7 +16,4 @@
     <!-- 机械臂 -->
     <include file="$(find arm_control)/launch/arm_server.launch" />
 
-    <!-- 测试抓取 -->
-    <node name="clickTest" pkg="cv_arm_control" type="clickTest.py" output="screen"/>
-
 </launch>

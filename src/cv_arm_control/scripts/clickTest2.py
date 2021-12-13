@@ -4,6 +4,7 @@ from CVArmControl import CVArmControl
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 from sensor_msgs.msg import Image
+import numpy as np
 
 WINNAME = "ClickOnImg"
 
@@ -13,6 +14,7 @@ class Main:
         self.arm = CVArmControl()
         self.arm.init()
 
+        self.img = np.zeros((480, 640, 3), np.uint8)
         self.img_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, self.msgCb)
         self.cvbridge = CvBridge()
         cv2.namedWindow(WINNAME)
@@ -48,8 +50,6 @@ class Main:
             self.arm.use(True)
 
     def on_shutdown(self):
-        cv2.destroyAllWindows()
-        rospy.loginfo("quit.")
         cv2.destroyAllWindows()
         rospy.loginfo("quit.")
 

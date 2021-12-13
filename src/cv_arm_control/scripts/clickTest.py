@@ -4,6 +4,7 @@ from CVArmControl import CVArmControl
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 from sensor_msgs.msg import Image
+import numpy as np
 
 WINNAME = "ClickOnImg"
 
@@ -13,6 +14,7 @@ class Main:
         self.arm = CVArmControl()
         self.arm.init()
 
+        self.img = np.zeros((480, 640, 3), np.uint8)
         self.img_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, self.msgCb)
         self.cvbridge = CvBridge()
         cv2.namedWindow(WINNAME)
@@ -31,7 +33,7 @@ class Main:
     def spin(self):
         while not rospy.is_shutdown():
             cv2.imshow(WINNAME, self.img)
-            if cv2.waitKey(5) & 0xFF == ord("q"):
+            if cv2.waitKey(100) & 0xFF == ord("q"):
                 break
         rospy.signal_shutdown("pressed 'q'")
 
@@ -48,8 +50,6 @@ class Main:
             self.arm.use(False)
 
     def on_shutdown(self):
-        cv2.destroyAllWindows()
-        rospy.loginfo("quit.")
         cv2.destroyAllWindows()
         rospy.loginfo("quit.")
 
