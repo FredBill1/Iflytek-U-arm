@@ -1,0 +1,22 @@
+<launch>
+
+    <!-- 摄像头 -->
+    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" respawn="true" output="screen">
+        <param name="video_device" value="/dev/video0" />
+        <param name="image_width" value="640" />
+        <param name="image_height" value="480" />
+        <param name="pixel_format" value="yuyv" />
+        <param name="camera_frame_id" value="usb_cam" />
+        <param name="io_method" value="mmap"/>
+    </node>
+
+    <!-- 畸变矫正 -->
+    <node ns="usb_cam" name="image_proc" pkg="image_proc" type="image_proc" respawn="true" output="screen"/>
+
+    <!-- 机械臂 -->
+    <include file="$(find arm_control)/launch/arm_server.launch" />
+
+    <!-- 测试抓取 -->
+    <node name="clickTest" pkg="cv_arm_control" type="clickTest.py" output="screen"/>
+
+</launch>
