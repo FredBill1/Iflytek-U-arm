@@ -14,7 +14,7 @@ category = {
 
 def main():
     rospy.init_node("CVArmClient", anonymous=True)
-    HOST = rospy.get_param("~host", "192.168.1.76")
+    HOST = rospy.get_param("~host", "192.168.31.200")
     PORT = rospy.get_param("~port", 39394)
     while True:
         cmd = input(">>")
