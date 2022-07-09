@@ -5,13 +5,15 @@
         <param name="image_height" value="480" />
         <param name="pixel_format" value="yuyv" />
         <param name="camera_frame_id" value="usb_cam" />
-        <param name="io_method" value="mmap"/>
+        <param name="io_method" value="mmap" />
+        <param name="image_flip" value="true" />
+        <param name="image_flip_code" value="1" />
     </node>
 
-    <node ns="usb_cam" name="image_proc" pkg="image_proc" type="image_proc" respawn="true" output="screen"/>
+    <node ns="usb_cam" name="image_proc" pkg="image_proc" type="image_proc" respawn="true" output="screen" />
 
     <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
-        <remap from="image" to="/usb_cam/image_rect_color"/>
+        <remap from="image" to="/usb_cam/image_rect_color" />
         <param name="autosize" value="true" />
     </node>
 </launch>

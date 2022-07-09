@@ -2,7 +2,7 @@
     <!-- YOLO -->
     <!-- <arg name="network_param_file" default="$(find darknet_ros)/config/yolov2-tiny.yaml"/> -->
     <!-- <arg name="network_param_file" default="$(find darknet_ros)/config/yolov4-tiny-arm.yaml"/> -->
-    <arg name="network_param_file" default="$(find darknet_ros)/config/yolov4-arm.yaml"/>
+    <arg name="network_param_file" default="$(find darknet_ros)/config/yolov4-arm.yaml" />
 
 
     <!-- 摄像头 -->
@@ -13,6 +13,8 @@
         <param name="pixel_format" value="yuyv" />
         <param name="camera_frame_id" value="usb_cam" />
         <param name="io_method" value="mmap"/>
+        <param name="image_flip" value="true"/>
+        <param name="image_flip_code" value="1"/>
     </node> -->
     <!-- <node name="usb_cam" pkg="socket_img" type="socket_img_recv.py" respawn="true" output="screen"/> -->
 
@@ -21,7 +23,7 @@
 
     <!-- YOLO -->
     <include file="$(find darknet_ros)/launch/darknet_ros.launch">
-        <arg name="network_param_file" value="$(arg network_param_file)"/>
+        <arg name="network_param_file" value="$(arg network_param_file)" />
         <arg name="image" value="usb_cam/darknet_img" />
     </include>
 </launch>
