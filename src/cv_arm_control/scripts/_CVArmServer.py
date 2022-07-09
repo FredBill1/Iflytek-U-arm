@@ -7,12 +7,6 @@ from rospy.core import is_shutdown_requested
 from typing import Dict, List, Tuple
 from random import randint
 
-CATAGORY = (
-    "fruit",
-    "beverage",
-    "meat",
-    "vegetable",
-)
 
 Z1 = 0.16
 Z2 = 0.22

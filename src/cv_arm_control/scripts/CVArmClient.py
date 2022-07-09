@@ -5,10 +5,10 @@ import socket
 
 commands = ("init", "grab", "drop")
 category = {
-    "v": "vegetable",
-    "b": "beverage",
-    "f": "fruit",
-    "m": "meat",
+    "w": "wet",
+    "d": "dry",
+    "r": "recycle",
+    "h": "harmful",
 }
 
 
