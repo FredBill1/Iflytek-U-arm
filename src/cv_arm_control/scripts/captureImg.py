@@ -19,7 +19,6 @@ class Main:
     def getImg(self):
         image = rospy.wait_for_message("/usb_cam/image_rect_color", Image)
         img = self.bridge.imgmsg_to_cv2(image, "bgr8")
-        img = cv2.flip(img, 1)
         return img
 
     def cap(self):

@@ -46,7 +46,6 @@ class ArUcoDetector:
             return
 
         gray = cv2.equalizeHist(gray)
-        gray = cv2.flip(gray, 1)  # 机械臂上的摄像头上下是反的
         corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.arucoDict)
         if ids is not None:
             ret = cv2.aruco.estimatePoseSingleMarkers(corners, CARD_LENTH, self.cameraMatrix, self.distCoeffs)

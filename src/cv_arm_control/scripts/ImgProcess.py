@@ -119,12 +119,11 @@ class ImgProcess:
 
     def imgCb(self, data: Image) -> None:
         try:
-            img = self.cvbridge.imgmsg_to_cv2(data, "bgr8")
+            self.img = self.cvbridge.imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
             rospy.logerr(e)
             return
 
-        self.img = cv2.flip(img, 1)
         self.newImgNotifier.notify()
         self.dispNotifier.notify()
 

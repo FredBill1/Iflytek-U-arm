@@ -24,8 +24,7 @@ class Main:
 
     def msgCb(self, src: Image) -> None:
         try:
-            img = self.cvbridge.imgmsg_to_cv2(src, "bgr8")
-            self.img = cv2.flip(img, 1)
+            self.img = self.cvbridge.imgmsg_to_cv2(src, "bgr8")
         except CvBridgeError as e:
             rospy.logerr(e)
             return
