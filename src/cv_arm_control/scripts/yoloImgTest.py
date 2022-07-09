@@ -10,13 +10,13 @@ import actionlib
 from darknet_ros_msgs.msg import CheckForObjectsAction, CheckForObjectsGoal, CheckForObjectsResult, BoundingBox
 from actionlib_msgs.msg import GoalStatus
 import numpy as np
-
+import os
 
 rospy.init_node("yolo_img_test")
 
 cvbridge = CvBridge()
 
-img = cv2.imread("/home/fredbill/workspace/roscar/Iflytek-U-arm/src/cv_arm_control/test.jpg")
+img = cv2.imread(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../test.jpg"))
 yolo_client = actionlib.SimpleActionClient("/darknet_ros/check_for_objects", CheckForObjectsAction)
 yolo_client.wait_for_server()
 msg = cvbridge.cv2_to_imgmsg(img, "rgb8")
