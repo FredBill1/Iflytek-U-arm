@@ -30,7 +30,7 @@ class CVArmServer:
         self.img_process = ImgProcess()
         self.yolo: Dict[str, List[Tuple[float]]] = {}
         self.target = ""
-        self.aucro: Tuple[float, float] = tuple()
+        self.apriltag: Tuple[float, float] = tuple()
 
     def init(self) -> None:
         self.cv_arm.init()
@@ -68,7 +68,7 @@ class CVArmServer:
         rospy.loginfo(self.yolo)
 
     def prepare(self):
-        self.aucro = tuple()
+        self.apriltag = tuple()
         self.home()
         self.getYolo()
 
@@ -86,14 +86,14 @@ class CVArmServer:
             while True:
                 if is_shutdown_requested():
                     return
-                if not self.aucro:
+                if not self.apriltag:
                     while True:
                         if is_shutdown_requested():
                             return
                         rospy.loginfo("获取aruco")
-                        aurco = self.img_process.getAucro()
+                        apriltag = self.img_process.getApriltag()
                         cnt = 0
-                        while aurco is None:
+                        while apriltag is None:
                             if is_shutdown_requested():
                                 return
                             cnt += 1
@@ -102,20 +102,20 @@ class CVArmServer:
                                 cnt = 0
                             else:
                                 self.cv_arm.move_xyz_relative(randint(-30, 30), randint(-30, 30), 0)
-                            rospy.logerr("未检测到aurco")
-                            aurco = self.img_process.getAucro()
+                            rospy.logerr("未检测到apriltag")
+                            apriltag = self.img_process.getApriltag()
                             # TODO 一段时间都没检测到
 
-                        x, y = aurco
+                        x, y = apriltag
                         if self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL):
-                            self.aucro = (x, y)
+                            self.apriltag = (x, y)
                             break
-                        rospy.logerr("移动到aurco坐标失败")
+                        rospy.logerr("移动到apriltag坐标失败")
                         # TODO 位置超限
                         # client.send("fail".encode())
 
                 else:
-                    x, y = self.aucro
+                    x, y = self.apriltag
                     self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL)
 
                 self.cv_arm.use(False)

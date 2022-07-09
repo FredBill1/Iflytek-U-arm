@@ -6,14 +6,19 @@ from sensor_msgs.msg import Image
 from threading import Condition, Thread
 from typing import List, Tuple, Dict, Optional
 import actionlib
-from darknet_ros_msgs.msg import CheckForObjectsAction, CheckForObjectsGoal, CheckForObjectsResult, BoundingBox
+from darknet_ros_msgs.msg import CheckForObjectsAction, CheckForObjectsGoal, BoundingBox
 from actionlib_msgs.msg import GoalStatus
+from apriltag_ros.srv import AnalyzeSingleImage, AnalyzeSingleImageRequest, AnalyzeSingleImageResponse
+from apriltag_ros.msg import AprilTagDetection
+from sensor_msgs.msg import CameraInfo
 import numpy as np
+import os
 
 WINNAME = "ClickOnImg"
 
-ARUCO_PARAM = cv2.aruco.DICT_6X6_250
-ARUCO_ID = 31
+DIR = os.path.dirname(os.path.abspath(__file__))
+INPUT_FILE = os.path.join(DIR, "request.png")
+RESULT_FILE = os.path.join(DIR, "response.png")
 
 GOAL_STATUS = {
     GoalStatus.PENDING: "PENDING",
@@ -66,7 +71,6 @@ class Notifier:
 
 class ImgProcess:
     def __init__(self) -> None:
-        self.arucoDict = cv2.aruco.Dictionary_get(ARUCO_PARAM)
         self.cvbridge = CvBridge()
         self.newImgNotifier = Notifier()
         self.dispNotifier = Notifier()
@@ -74,6 +78,13 @@ class ImgProcess:
     def init(self) -> None:
         rospy.loginfo("ImgProcess - 等待图片话题...")
         img: Image = rospy.wait_for_message("/usb_cam/image_rect_color", Image)
+        self.cam_info: CameraInfo = rospy.wait_for_message("/usb_cam/camera_info", CameraInfo)
+        self.P = np.array(self.cam_info.P).reshape((3, 4))[:, :3]
+
+        rospy.loginfo("等待apriltag服务")
+        rospy.wait_for_service("/single_image_tag_detection")
+        self.tag_service = rospy.ServiceProxy("/single_image_tag_detection", AnalyzeSingleImage)
+
         self.img = self.cvbridge.imgmsg_to_cv2(img, "bgr8")
         self.img_sub = rospy.Subscriber("/usb_cam/image_rect_color", Image, self.imgCb)
         self.yolo_img_sub = rospy.Subscriber("/darknet_ros/detection_image", Image, self.yoloImgCb)
@@ -88,8 +99,8 @@ class ImgProcess:
 
         rospy.loginfo("ImgProcess - 进行Yolo测试...")
         self.getYolo()
-        rospy.loginfo("ImgProcess - 进行Aucro测试...")
-        self.getAucro()
+        rospy.loginfo("ImgProcess - 进行apriltag测试...")
+        self.getApriltag()
 
         rospy.loginfo("ImgProcess - 初始化完成")
         rospy.on_shutdown(self.on_shutdown)
@@ -127,23 +138,25 @@ class ImgProcess:
         self.newImgNotifier.notify()
         self.dispNotifier.notify()
 
-    def getAucro(self) -> Optional[Tuple[float, float]]:
-        res = None
+    def getApriltag(self) -> Optional[Tuple[float, float]]:
         self.newImgNotifier.wait()
-        self.res_img = self.img.copy()
-        gray = cv2.cvtColor(self.res_img, cv2.COLOR_BGR2GRAY)
-        # gray = cv2.equalizeHist(gray)
-        corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.arucoDict)
-        if ids is not None:
-            cv2.aruco.drawDetectedMarkers(self.res_img, corners, ids)
-            for i, id in enumerate(ids):
-                if id[0] == ARUCO_ID:
-                    corner = corners[i][0]
-                    res = line_intersection((corner[0], corner[2]), (corner[1], corner[3]))
-                    cv2.circle(self.res_img, tuple(round(v) for v in res), 5, (0, 0, 255), 5)
-                    break
+        cv2.imwrite(INPUT_FILE, self.img, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        request = AnalyzeSingleImageRequest(
+            full_path_where_to_get_image=INPUT_FILE,
+            full_path_where_to_save_image=RESULT_FILE,
+            camera_info=self.cam_info,
+        )
+        response: AnalyzeSingleImageResponse = self.tag_service.call(request)
+        self.res_img = cv2.imread(RESULT_FILE)
         self.dispNotifier.notify()
-        return res
+        dets = response.tag_detections.detections
+        if not dets:
+            return None
+        det: AprilTagDetection = dets[0]
+        pos = det.pose.pose.pose.position
+        pos = np.array([pos.x, pos.y, pos.z]).T
+        pos = np.dot(self.P, pos)
+        return (pos[0] / pos[2], pos[1] / pos[2])
 
     def getYolo(self) -> Dict[str, List[Tuple[float, float]]]:
         self.newImgNotifier.wait()

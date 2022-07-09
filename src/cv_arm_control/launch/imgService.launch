@@ -25,4 +25,7 @@
         <arg name="network_param_file" value="$(arg network_param_file)" />
         <arg name="image" value="usb_cam/darknet_img" />
     </include>
+
+    <!-- apriltag服务 -->
+    <include file="$(find cv_arm_control)/launch/apriltag_server.launch" />
 </launch>
