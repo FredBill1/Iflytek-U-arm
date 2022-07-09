@@ -25,7 +25,7 @@ class CVArmControl(ArmControl):
     def init(self):
         rospy.loginfo("Wait for /camera_info...")
         self.cam_info: CameraInfo = rospy.wait_for_message("usb_cam/camera_info", CameraInfo)
-        C2U = np.array(self.cam_info.R).reshape((3, 3))
+        C2U = np.array(self.cam_info.P).reshape((3, 4))[:, :3]
         self.U2C = np.linalg.inv(C2U)
         self.distCoeffs = np.array(self.cam_info.D)
 

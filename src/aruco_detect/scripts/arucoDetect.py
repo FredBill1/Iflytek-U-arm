@@ -29,7 +29,7 @@ class ArUcoDetector:
     def init(self) -> None:
         rospy.loginfo("等待 /camera_info...")
         self.cam_info: CameraInfo = rospy.wait_for_message("usb_cam/camera_info", CameraInfo)
-        self.cameraMatrix = np.array(self.cam_info.R).reshape((3, 3))
+        self.cameraMatrix = np.array(self.cam_info.P).reshape((3, 4))[:, :3]
         self.distCoeffs = np.array(self.cam_info.D)
 
         self.gray_sub = rospy.Subscriber("usb_cam/image_rect", Image, self.callback)
