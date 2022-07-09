@@ -14,7 +14,7 @@ CATAGORY = (
     "vegetable",
 )
 
-Z1 = 0.18
+Z1 = 0.16
 Z2 = 0.22
 GRAB_Z = 10.0
 GRAB_VEL = 50.0
