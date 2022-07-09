@@ -156,7 +156,9 @@ class ImgProcess:
         pos = det.pose.pose.pose.position
         pos = np.array([pos.x, pos.y, pos.z]).T
         pos = np.dot(self.P, pos)
-        return (pos[0] / pos[2], pos[1] / pos[2])
+        pos = (pos[0] / pos[2], pos[1] / pos[2])
+        rospy.loginfo(f"apriltag:{pos}")
+        return pos
 
     def getYolo(self) -> Dict[str, List[Tuple[float, float]]]:
         self.newImgNotifier.wait()
