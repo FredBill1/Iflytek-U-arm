@@ -6,6 +6,7 @@ import rospy
 from rospy.core import is_shutdown_requested
 from typing import Dict, List, Tuple
 from random import randint
+from math import atan2
 
 
 Z1 = 0.16
@@ -17,6 +18,8 @@ DROP_VEL = 150.0
 
 GET_YOLO_EVERY_TIME = False
 REPEAT_GRAB = False
+
+STD_POS = (420, 200)
 
 
 class CVArmServer:
@@ -110,8 +113,12 @@ class CVArmServer:
                         if self.cv_arm.move2d(x, y, Z2, DROP_Z, DROP_VEL):
                             self.apriltag = (x, y)
                             break
+                        # 位置超限
                         rospy.logerr("移动到apriltag坐标失败")
-                        # TODO 位置超限
+                        dx, dy = x - STD_POS[0], -(y - STD_POS[1])
+                        yaw = atan2(dy, dx)
+                        self.send_client(client, f"move {yaw}")
+                        return
 
                 else:
                     x, y = self.apriltag
