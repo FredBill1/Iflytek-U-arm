@@ -115,7 +115,7 @@ class CVArmServer:
                             break
                         # 位置超限
                         rospy.logerr("移动到apriltag坐标失败")
-                        dx, dy = x - STD_POS[0], -(y - STD_POS[1])
+                        dx, dy = STD_POS[0] - x, y - STD_POS[1]
                         yaw = atan2(dy, dx)
                         self.send_client(client, f"move {yaw}")
                         return
