@@ -9,13 +9,14 @@ from random import randint
 
 
 Z1 = 0.16
-Z2 = 0.22
+Z2 = 0.21
 GRAB_Z = 10.0
 GRAB_VEL = 50.0
 DROP_Z = -5.0
 DROP_VEL = 150.0
 
 GET_YOLO_EVERY_TIME = False
+REPEAT_GRAB = False
 
 
 class CVArmServer:
@@ -65,6 +66,11 @@ class CVArmServer:
         self.apriltag = tuple()
         self.home()
         self.getYolo()
+    
+    @staticmethod
+    def send_client(client, msg: str):
+        rospy.loginfo(f"发送到客户端: {msg}")
+        client.send(msg.encode())
 
     def msgParse(self, msg: str, client: socket.socket):
         if msg == "init":
@@ -80,11 +86,11 @@ class CVArmServer:
             while True:
                 if is_shutdown_requested():
                     return
-                if not self.apriltag:
+                if not REPEAT_GRAB or not self.apriltag:
                     while True:
                         if is_shutdown_requested():
                             return
-                        rospy.loginfo("获取aruco")
+                        rospy.loginfo("获取apriltag")
                         apriltag = self.img_process.getApriltag()
                         cnt = 0
                         while apriltag is None:
@@ -106,7 +112,6 @@ class CVArmServer:
                             break
                         rospy.logerr("移动到apriltag坐标失败")
                         # TODO 位置超限
-                        # client.send("fail".encode())
 
                 else:
                     x, y = self.apriltag
@@ -114,8 +119,9 @@ class CVArmServer:
 
                 self.cv_arm.use(False)
                 rospy.sleep(0.3)
-                if not self.checkTarget():
-                    client.send("done".encode())
+                
+                if not REPEAT_GRAB or not self.checkTarget():
+                    self.send_client(client, "done")
                     break
                 rospy.sleep(0.2)
                 self.home()
@@ -123,7 +129,7 @@ class CVArmServer:
                     rospy.sleep(0.2)
                     self.getYolo()
                     if not self.checkTarget():
-                        client.send("done".encode())
+                        self.send_client(client, "done")
                         break
                 self.grab()
                 self.ready()
