@@ -19,7 +19,7 @@ DROP_VEL = 150.0
 GET_YOLO_EVERY_TIME = False
 REPEAT_GRAB = False
 
-STD_POS = (420, 200)
+STD_POS = (350, 200)
 
 
 class CVArmServer:
